@@ -39,6 +39,61 @@ if (!$stmt->fetch()) {
 
 $stmt->close();
 
+/* Get categories*/
+$categories = $db_connection->query(
+    "SELECT category_id, category_name
+     FROM categories
+     ORDER BY category_name"
+);
+
+
+/* Add Monthly Budget */
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+
+    $category_id = filter_input(INPUT_POST, 'category_id', FILTER_VALIDATE_INT);
+    /* Get selected month and year*/
+    $selected_month = $_POST['month'] ?? '';
+    $selected_year = $_POST['year'] ?? '';
+
+    $month = $selected_year . "-" . $selected_month;
+    $limit_amount = $_POST['limit_amount'] ?? '';
+
+    if (
+        $category_id !== false &&
+        $category_id !== null &&
+        preg_match('/^\d{4}-(0[1-9]|1[0-2])$/', $month) &&
+        is_numeric($limit_amount) &&
+        $limit_amount > 0
+    ) {
+
+        $insert_budget = $db_connection->prepare(
+            "INSERT INTO budget (limit_amount, month, user_id, category_id)
+             VALUES (?, ?, ?, ?)"
+        );
+
+        $insert_budget->bind_param(
+            "dsii",
+            $limit_amount,
+            $month,
+            $user_id,
+            $category_id
+        );
+
+        if ($insert_budget->execute()) {
+            header("location: budget.php");
+            exit();
+        } else {
+            $message = "Unable to add budget.";
+        }
+
+        $insert_budget->close();
+
+    } else {
+    $message = "Please check your category, month, and budget amount";
+    }
+}
+
+
 /*Get user budgets*/
 $stmt = $db_connection->prepare(
     "SELECT b.month, b.limit_amount, c.category_name
@@ -85,6 +140,82 @@ $stmt->close();
         <p class="lead">
             View and manage your monthly spending limits.
         </p>
+
+        <hr class="mb-4">
+
+        <!-- Add Monthly Budget Form -->
+        <section class="mb-4">
+
+            <h2>Add Monthly Budget</h2>
+            <?php
+            if (isset($message)) {
+                echo "<p class='text-danger'>" . htmlspecialchars($message) . "</p>";
+            }?>
+            <form action="budget.php" method="post">
+
+                <div class="mb-3">
+                    <label for="category" class="form-label">Category</label>
+
+                    <select class="form-control" name="category_id" id="category" required>
+                        <option value="">Select Category</option>
+
+                        <?php
+                        while($row = $categories->fetch_assoc()) {
+                            echo "<option value='" . $row["category_id"] . "'>"
+                                . htmlspecialchars($row["category_name"])
+                                . "</option>";
+                        }?>
+                    </select>
+                </div>
+
+
+                
+                <!-- Select month and year-->
+                <div class="row mb-3">
+
+                    <div class="col-md-6">
+                        <label for="month" class="form-label">Month</label>
+                        <select class="form-control" name="month" id="month" required>
+                            <option value="">Select Month</option>
+
+                            <?php
+                            for ($m = 1; $m <= 12; $m++) {
+                                echo "<option value='" . sprintf("%02d", $m) . "'>"
+                                    . date("F", mktime(0, 0, 0, $m, 1))
+                                    . "</option>";
+                            }
+                            ?>
+                        </select>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="year" class="form-label">Year</label>
+                        <select class="form-control" name="year" id="year" required>
+                            <option value="">Select Year</option>
+
+                            <?php
+                            $current_year = date("Y");
+
+                            for ($y = $current_year; $y <= $current_year + 5; $y++) {
+                                echo "<option value='$y'>$y</option>";
+                            }
+                            ?>
+                        </select>
+                    </div>
+
+                </div>
+
+
+                <div class="mb-3">
+                    <label for="limit_amount" class="form-label">Budget Limit</label>
+                    <input type="number" class="form-control" name="limit_amount"
+                        id="limit_amount" min="0.01" step="0.01" required>
+                </div>
+
+                <button type="submit" class="btn btn-primary">Add Budget</button>
+
+            </form>
+        </section>
 
         <hr class="mb-4">
 
