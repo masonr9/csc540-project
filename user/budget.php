@@ -47,11 +47,13 @@ $categories = $db_connection->query(
 );
 
 
+
 /* Add Monthly Budget */
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     $category_id = filter_input(INPUT_POST, 'category_id', FILTER_VALIDATE_INT);
-    /* Get selected month and year*/
+
+    /* Get selected month and year */
     $selected_month = $_POST['month'] ?? '';
     $selected_year = $_POST['year'] ?? '';
 
@@ -66,32 +68,53 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $limit_amount > 0
     ) {
 
-        $insert_budget = $db_connection->prepare(
-            "INSERT INTO budget (limit_amount, month, user_id, category_id)
-             VALUES (?, ?, ?, ?)"
+        /* Check if a budget already exists */
+        $check_budget = $db_connection->prepare(
+            "SELECT budget_id FROM budget
+             WHERE user_id = ? AND category_id = ? AND month = ?"
         );
 
-        $insert_budget->bind_param(
-            "dsii",
-            $limit_amount,
-            $month,
-            $user_id,
-            $category_id
-        );
+        $check_budget->bind_param("iis", $user_id, $category_id, $month);
+        $check_budget->execute();
+        $check_budget->store_result();
 
-        if ($insert_budget->execute()) {
-            header("location: budget.php");
-            exit();
+        if ($check_budget->num_rows > 0) {
+
+            $message = "You already have a budget for this category and month.";
+
         } else {
-            $message = "Unable to add budget.";
+
+            /* Insert new budget */
+            $insert_budget = $db_connection->prepare(
+                "INSERT INTO budget (limit_amount, month, user_id, category_id)
+                 VALUES (?, ?, ?, ?)"
+            );
+
+            $insert_budget->bind_param(
+                "dsii",
+                $limit_amount,
+                $month,
+                $user_id,
+                $category_id
+            );
+
+            if ($insert_budget->execute()) {
+                header("location: budget.php");
+                exit();
+            } else {
+                $message = "Unable to add budget.";
+            }
+
+            $insert_budget->close();
         }
 
-        $insert_budget->close();
+        $check_budget->close();
 
     } else {
-    $message = "Please check your category, month, and budget amount";
+        $message = "Please check your category, month, and budget amount.";
     }
 }
+
 
 
 /*Get user budgets*/
