@@ -47,9 +47,35 @@ $categories = $db_connection->query(
 );
 
 
+/* Delete Monthly Budget */
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["delete_budget"])) {
+
+    $budget_id = filter_input(INPUT_POST, "budget_id", FILTER_VALIDATE_INT);
+
+    if ($budget_id !== false && $budget_id !== null && $budget_id > 0) {
+
+        $delete_budget = $db_connection->prepare(
+            "DELETE FROM budget
+             WHERE budget_id = ? AND user_id = ?"
+        );
+
+        $delete_budget->bind_param("ii", $budget_id, $user_id);
+
+        if ($delete_budget->execute()) {
+            header("location: budget.php");
+            exit();
+        } else {
+            $message = "Unable to delete budget.";
+        }
+
+        $delete_budget->close();
+    } else {
+        $message = "Invalid budget selected.";
+    }
+}
 
 /* Add Monthly Budget */
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
+if ($_SERVER["REQUEST_METHOD"] == "POST" && !isset($_POST["delete_budget"])) {
 
     $category_id = filter_input(INPUT_POST, 'category_id', FILTER_VALIDATE_INT);
 
@@ -60,13 +86,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $month = $selected_year . "-" . $selected_month;
     $limit_amount = $_POST['limit_amount'] ?? '';
 
-    if (
+    if 
+    (
         $category_id !== false &&
         $category_id !== null &&
         preg_match('/^\d{4}-(0[1-9]|1[0-2])$/', $month) &&
         is_numeric($limit_amount) &&
         $limit_amount > 0
-    ) {
+    ) 
+    {
+
 
         /* Check if a budget already exists */
         $check_budget = $db_connection->prepare(
@@ -110,16 +139,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         $check_budget->close();
 
-    } else {
-        $message = "Please check your category, month, and budget amount.";
-    }
+    } else 
+        {
+            $message = "Please check your category, month, and budget amount.";
+        }
 }
-
-
 
 /*Get user budgets*/
 $stmt = $db_connection->prepare(
-    "SELECT b.month, b.limit_amount, c.category_name
+    "SELECT b.budget_id, b.month, b.limit_amount, c.category_name
      FROM budget b
      INNER JOIN categories c
      ON b.category_id = c.category_id
@@ -128,12 +156,13 @@ $stmt = $db_connection->prepare(
 
 $stmt->bind_param("i", $user_id);
 $stmt->execute();
-$stmt->bind_result($month, $limit_amount, $category_name);
+$stmt->bind_result($budget_id, $month, $limit_amount, $category_name);
 
 $budgets = array();
 
 while ($stmt->fetch()) {
     $budgets[] = array(
+        "budget_id" => $budget_id,
         "month" => $month,
         "limit_amount" => $limit_amount,
         "category_name" => $category_name
@@ -252,23 +281,43 @@ $stmt->close();
                         <th scope="col">Month</th>
                         <th scope="col">Category</th>
                         <th scope="col">Budget Limit</th>
+                        <th scope="col">Action</th>
                     </tr>
                 </thead>
 
                 <tbody>
-                <?php
-                if (count($budgets) > 0) {
-                    foreach ($budgets as $row) {
-                        echo "<tr>";
-                        echo "<td>" . htmlspecialchars($row["month"]) . "</td>";
-                        echo "<td>" . htmlspecialchars($row["category_name"]) . "</td>";
-                        echo "<td>$" . number_format($row["limit_amount"], 2) . "</td>";
-                        echo "</tr>";
-                    }
-                } else {
-                    echo "<tr><td colspan='3'>No budgets found</td></tr>";
-                }
-                ?>
+                    <?php              
+                    if (count($budgets) > 0) {
+                        foreach ($budgets as $row) {
+                            echo "<tr>";
+                            echo "<td>" . htmlspecialchars($row["month"]) . "</td>";
+                            echo "<td>" . htmlspecialchars($row["category_name"]) . "</td>";
+                            echo "<td>$" . number_format($row["limit_amount"], 2) . "</td>";
+
+                            /* Delete button */
+                            echo "<td>
+                                    <form action='budget.php' method='post'
+                                        onsubmit=\"return confirm('Are you sure you want to delete this budget?');\">
+
+                                        <input type='hidden'
+                                            name='budget_id'
+                                            value='" . (int)$row["budget_id"] . "'>
+
+                                        <button type='submit'
+                                                name='delete_budget'
+                                                value='1'
+                                                class='btn btn-outline-danger btn-sm'>
+                                            Delete
+                                        </button>
+                                    </form>
+                                </td>";
+
+                            echo "</tr>";
+                        }
+                    } else {
+                        echo "<tr><td colspan='4'>No budgets found</td></tr>";
+                    }?>
+
                 </tbody>
             </table>
 
