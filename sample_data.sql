@@ -1,3 +1,72 @@
+-- Roles
+INSERT INTO
+    Roles (role_id, role_type)
+VALUES
+    (1, 'Admin'),
+    (2, 'User');
+
+-- Contacts
+INSERT INTO
+    Contacts (
+        contact_id,
+        last_name,
+        first_name,
+        email,
+        phone,
+        city,
+        state_code,
+        post_code
+    )
+VALUES
+    (
+        1,
+        'Smith',
+        'John',
+        'john@example.com',
+        '2035550101',
+        'New Haven',
+        'CT',
+        06511
+    ),
+    (
+        2,
+        'Johnson',
+        'Emily',
+        'emily@example.com',
+        '2035550102',
+        'Hartford',
+        'CT',
+        06103
+    ),
+    (
+        3,
+        'Brown',
+        'Michael',
+        'michael@example.com',
+        '2035550103',
+        'Houston',
+        'TX',
+        77001
+    );
+
+-- Users
+INSERT INTO
+    Users (user_id, role_id, contact_id)
+VALUES
+    (1, 2, 1),
+    (2, 2, 2),
+    (3, 1, 3);
+
+-- Credentials
+-- RWe will have to replace placeholders with properly generated password hashes
+-- before testing authentication.
+INSERT INTO
+    Credentials (username, user_id, password_salted)
+VALUES
+    ('johnsmith', 1, 'TEST_HASH_PLACEHOLDER_1'),
+    ('emilyjohnson', 2, 'TEST_HASH_PLACEHOLDER_2'),
+    ('michaelbrown', 3, 'TEST_HASH_PLACEHOLDER_3');
+
 -- Categories
 INSERT INTO
     categories (category_id, category_name)
