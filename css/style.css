@@ -27,13 +27,227 @@
     "YTUC" 712;
 } */
 
+
+/* Personal Expense Tracker */
+/* Main Website Styles */
+
+/* General Page Styling */
 html,
 body {
-  font-family: "Roboto Flex", sans-serif;
-  font-optical-sizing: auto;
-  font-weight: 300;
-  font-style: normal;
-  margin: 0;
-  padding: 0;
-  background-color: #f4f4f4;
+    font-family: "Roboto Flex", sans-serif;
+    font-weight: 400;
+    margin: 0;
+    padding: 0;
+    background-color: #F7FAFC;
+    color: #082B40;
 }
+
+/* Sidebar */
+.expense-sidebar {
+    width: 220px;
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    background-color: #082B40;
+    color: white;
+    padding: 30px 15px;
+    z-index: 1000;
+    overflow-y: auto;
+}
+
+.sidebar-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: white;
+    margin-bottom: 40px;
+    padding-left: 15px;
+}
+
+.sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.sidebar-nav a {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 15px;
+    text-decoration: none;
+    color: white;
+    border-radius: 8px;
+    font-weight: 500;
+    transition: background-color 0.2s;
+}
+
+.sidebar-nav a:hover,
+.sidebar-nav a.active {
+    background-color: #2475AC;
+    color: white;
+}
+
+/* Top Navigation Bar */
+.expense-topbar {
+    height: 70px;
+    margin-left: 220px;
+    background-color: #FFFFFF;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    padding: 0 30px;
+    border-bottom: 1px solid #DCEEF8;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    font-weight: 500;
+}
+
+.user-info a {
+    color: #2475AC;
+    text-decoration: none;
+}
+
+/* Main Content */
+body.user main {
+    margin-left: 220px;
+    width: calc(100% - 220px);
+    max-width: none;
+    padding: 30px;
+    box-sizing: border-box;
+}
+
+/* Budget Page */
+.budget-page {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 10px;
+}
+
+.budget-page h1 {
+    font-size: 30px;
+    font-weight: 700;
+    color: #082B40;
+    margin-bottom: 10px;
+}
+
+.budget-page .lead {
+    color: #607D8B;
+}
+
+/* Cards */
+.budget-page section {
+    background-color: #FFFFFF;
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(8, 43, 64, 0.08);
+    margin-bottom: 25px;
+}
+
+.budget-page h2 {
+    font-size: 22px;
+    font-weight: 600;
+    margin-bottom: 20px;
+}
+
+/* Form Fields */
+.budget-page .form-label {
+    font-weight: 500;
+    color: #082B40;
+}
+
+.budget-page .form-control {
+    border: 1px solid #DCEEF8;
+    border-radius: 8px;
+    padding: 10px;
+}
+
+.budget-page .form-control:focus {
+    border-color: #2475AC;
+    box-shadow: 0 0 0 3px rgba(36, 117, 172, 0.12);
+}
+
+/* Buttons */
+.budget-page .btn-primary {
+    background-color: #2475AC;
+    border-color: #2475AC;
+    border-radius: 8px;
+    padding: 10px 20px;
+}
+
+.budget-page .btn-primary:hover {
+    background-color: #082B40;
+    border-color: #082B40;
+}
+
+.budget-page .btn-outline-primary {
+    color: #2475AC;
+    border-color: #2475AC;
+}
+
+.budget-page .btn-outline-primary:hover {
+    background-color: #2475AC;
+    color: white;
+}
+
+.budget-page .btn-outline-danger {
+    border-radius: 8px;
+}
+
+/* Budget Table */
+.budget-page .table {
+    width: 100%;
+    background-color: white;
+}
+
+.budget-page .table thead th {
+    background-color: #DCEEF8;
+    color: #082B40;
+    font-weight: 600;
+}
+
+.budget-page .table th,
+.budget-page .table td {
+    padding: 15px;
+    vertical-align: middle;
+}
+
+.budget-page .table tbody tr:hover td {
+    background-color: #F0F8FC;
+}
+
+/* Responsive Layout */
+@media (max-width: 768px) {
+    .expense-sidebar {
+        width: 170px;
+        padding: 20px 10px;
+    }
+
+    .sidebar-title {
+        font-size: 20px;
+    }
+
+    .expense-topbar {
+        margin-left: 170px;
+        padding: 0 15px;
+    }
+
+    body.user main {
+        margin-left: 170px;
+        width: calc(100% - 170px);
+        padding: 15px;
+    }
+
+    .budget-page section {
+        padding: 20px;
+    }
+
+    .budget-page {
+        padding: 0;
+    }
+}
+
