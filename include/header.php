@@ -44,6 +44,8 @@ if (!isset($_SESSION)) {
           if (isset($_SESSION['user_name']) && $_SESSION['user_role'] == 1) { // Only display when user is logged in
             echo '<li class="nav-item"><a class="nav-link" href="' . BASE_URL . '/admin/">Admin Dashboard</a></li>';
             echo '<li class="nav-item"><a class="nav-link" href="' . BASE_URL . '/change_credentials.php">Change Credentials</a></li>';
+            echo '<li class="nav-item"><a class="nav-link" href="' . BASE_URL . '/user/expenses.php">Expenses</a></li>';
+            echo '<li class="nav-item"><a class="nav-link" href="' . BASE_URL . '/user/budget.php">Budgets</a></li>';
           }
         ?>
         <?php
@@ -51,6 +53,8 @@ if (!isset($_SESSION)) {
           if (isset($_SESSION['user_name']) && $_SESSION['user_role'] == 2) { // Only display when user is logged in
             echo '<li class="nav-item"><a class="nav-link" href="' . BASE_URL . '/user/">User Dashboard</a></li>';
             echo '<li class="nav-item"><a class="nav-link" href="' . BASE_URL . '/change_credentials.php">Change Credentials</a></li>';
+            echo '<li class="nav-item"><a class="nav-link" href="' . BASE_URL . '/user/expenses.php">Expenses</a></li>';
+            echo '<li class="nav-item"><a class="nav-link" href="' . BASE_URL . '/user/budget.php">Budgets</a></li>';
           }
         ?>
         <?php
