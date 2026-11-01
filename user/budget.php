@@ -74,6 +74,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["delete_budget"])) {
     }
 }
 
+<<<<<<< HEAD
 /* Edit Monthly Budget */
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["edit_budget"])) {
 
@@ -115,6 +116,10 @@ if (
     !isset($_POST["delete_budget"]) &&
     !isset($_POST["edit_budget"])
 ) {
+=======
+/* Add Monthly Budget */
+if ($_SERVER["REQUEST_METHOD"] == "POST" && !isset($_POST["delete_budget"])) {
+>>>>>>> origin/main
 
     $category_id = filter_input(INPUT_POST, 'category_id', FILTER_VALIDATE_INT);
 
@@ -225,7 +230,11 @@ $stmt->close();
 
 <main role="main" class="container">
 
+<<<<<<< HEAD
     <div class="container budget-page">
+=======
+    <div class="container text-center">
+>>>>>>> origin/main
 
         <h1>My Monthly Budgets</h1>
         <p class="lead">
@@ -320,8 +329,11 @@ $stmt->close();
                         <th scope="col">Month</th>
                         <th scope="col">Category</th>
                         <th scope="col">Budget Limit</th>
+<<<<<<< HEAD
                         <th scope="col">Edit</th>
                         <th scope="col">Delete</th>
+=======
+>>>>>>> origin/main
                         <th scope="col">Action</th>
                     </tr>
                 </thead>
@@ -335,6 +347,7 @@ $stmt->close();
                             echo "<td>" . htmlspecialchars($row["category_name"]) . "</td>";
                             echo "<td>$" . number_format($row["limit_amount"], 2) . "</td>";
 
+<<<<<<< HEAD
                             /* Edit button */
                             echo 
                             "<td>
@@ -360,6 +373,8 @@ $stmt->close();
                                 </form>
                             </td>";
 
+=======
+>>>>>>> origin/main
                             /* Delete button */
                             echo "<td>
                                     <form action='budget.php' method='post'
@@ -381,7 +396,11 @@ $stmt->close();
                             echo "</tr>";
                         }
                     } else {
+<<<<<<< HEAD
                         echo "<tr><td colspan='5'>No budgets found</td></tr>";
+=======
+                        echo "<tr><td colspan='4'>No budgets found</td></tr>";
+>>>>>>> origin/main
                     }?>
 
                 </tbody>
