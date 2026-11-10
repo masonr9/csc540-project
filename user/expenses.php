@@ -1,5 +1,6 @@
 <?php
-// Expense management shares the team's login, lookup tables and budget categories.
+// this shows the Expense management which can be seen with the team's login, 
+// lookup tables and budget categories.
 require_once dirname(__DIR__) . '/php/path.php';
 session_start();
 if (empty($_SESSION['login_user'])) {
@@ -95,9 +96,14 @@ $category = filter_var($_GET['category'] ?? '', FILTER_VALIDATE_INT) ?: 0;
 $search = is_string($_GET['search'] ?? null) ? substr(trim($_GET['search']),0,100) : '';
 $where = 'e.user_id=? AND e.expense_date>=? AND e.expense_date<?';
 $values = [$user_id,$from,$until]; $types = 'iss';
-if ($category > 0) { $where .= ' AND e.category_id=?'; $values[]=$category; $types.='i'; }
-if ($search !== '') { $where .= ' AND (m.merchant_name LIKE ? OR c.category_name LIKE ?)'; $values[]='%'.$search.'%'; $values[]='%'.$search.'%'; $types.='ss'; }
-$rows = query_expenses($db_connection, "SELECT e.*, c.category_name,m.merchant_name,p.method_name,cu.currency FROM expenses e JOIN categories c ON c.category_id=e.category_id JOIN merchant m ON m.merchant_id=e.merchant_id JOIN payment_method p ON p.payment_id=e.payment_id JOIN currencies cu ON cu.currency_id=e.currency_id WHERE $where ORDER BY e.expense_date DESC,e.expense_id DESC", $types,$values)->get_result()->fetch_all(MYSQLI_ASSOC);
+if ($category > 0) { 
+    $where .= ' AND e.category_id=?'; 
+    $values[]=$category; $types.='i'; 
+    }
+if ($search !== '') { 
+    $where .= ' AND (m.merchant_name LIKE ? OR c.category_name LIKE ?)'; 
+    $values[]='%'.$search.'%'; $values[]='%'.$search.'%'; $types.='ss'; }
+    $rows = query_expenses($db_connection, "SELECT e.*, c.category_name,m.merchant_name,p.method_name,cu.currency FROM expenses e JOIN categories c ON c.category_id=e.category_id JOIN merchant m ON m.merchant_id=e.merchant_id JOIN payment_method p ON p.payment_id=e.payment_id JOIN currencies cu ON cu.currency_id=e.currency_id WHERE $where ORDER BY e.expense_date DESC,e.expense_id DESC", $types,$values)->get_result()->fetch_all(MYSQLI_ASSOC);
 // Monthly totals ignore list filters and always separate currencies.
 $totals = query_expenses($db_connection, 'SELECT c.category_name,cu.currency,SUM(e.amount) AS total FROM expenses e JOIN categories c ON c.category_id=e.category_id JOIN currencies cu ON cu.currency_id=e.currency_id WHERE e.user_id=? AND e.expense_date>=? AND e.expense_date<? GROUP BY e.category_id,c.category_name,e.currency_id,cu.currency ORDER BY c.category_name,cu.currency', 'iss', [$user_id,$from,$until])->get_result()->fetch_all(MYSQLI_ASSOC);
 $notice = $_SESSION['expense_notice'] ?? ''; unset($_SESSION['expense_notice']);
