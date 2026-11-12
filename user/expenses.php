@@ -1,10 +1,5 @@
 <?php
-<<<<<<< HEAD
 // Expense management shares the team's login, lookup tables and budget categories.
-=======
-// this shows the Expense management which can be seen with the team's login, 
-// lookup tables and budget categories.
->>>>>>> 07b6b05220fa5d7bdb37c9bbcc9c7ef0309d6c1c
 require_once dirname(__DIR__) . '/php/path.php';
 session_start();
 if (empty($_SESSION['login_user'])) {
@@ -103,7 +98,6 @@ $values = [$user_id,$from,$until]; $types = 'iss';
 if ($category > 0) { 
     $where .= ' AND e.category_id=?'; 
     $values[]=$category; $types.='i'; 
-<<<<<<< HEAD
 }
 if ($search !== '') { 
     $where .= ' AND (m.merchant_name LIKE ? OR c.category_name LIKE ?)'; 
@@ -280,5 +274,3 @@ $notice = $_SESSION['expense_notice'] ?? ''; unset($_SESSION['expense_notice']);
 <?php include ROOT_PATH . '/include/footer.php'; ?>
 </body>
 </html>
-=======
->>>>>>> 07b6b05220fa5d7bdb37c9bbcc9c7ef0309d6c1c
