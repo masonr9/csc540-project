@@ -1,13 +1,4 @@
 <?php
-/**
- * Header Include File
- *
- * @author    Joshua Connor <connorj4@southernct.edu>
- * @copyright 2026 
- * @date      2026-02-24
- * @version   1.0
- */
-// 
 if (!isset($_SESSION)) {
     // Only include session if not already started
     include_once (realpath(dirname(__FILE__).'/path.php'));
@@ -16,11 +7,9 @@ if (!isset($_SESSION)) {
 }
 ?>
 <?php
-// Header Section
 ?>
 <header class="mb-5">
 <?php
-// navigation bar
 ?>
 <nav class="navbar navbar-expand-lg bg-body-tertiary">
   <div class="container-fluid">
@@ -32,7 +21,6 @@ if (!isset($_SESSION)) {
     <div class="collapse navbar-collapse" id="navbarText">
       <ul class="navbar-nav me-auto mb-2 mb-lg-0">
         <?php
-          /* Show Home link only when user is NOT logged in */
           if (!isset($_SESSION['user_name'])) {
             echo '<li class="nav-item">';
             echo '<a class="nav-link active" aria-current="page" href="../">Home</a>';
@@ -43,9 +31,10 @@ if (!isset($_SESSION)) {
           /* User Information */
           if (isset($_SESSION['user_name']) && $_SESSION['user_role'] == 1) { // Only display when user is logged in
             echo '<li class="nav-item"><a class="nav-link" href="' . BASE_URL . '/admin/">Admin Dashboard</a></li>';
+            echo '<li class="nav-item"><a class="nav-link" href="' . BASE_URL . '/admin/search_users.php">Search Users</a></li>';
             echo '<li class="nav-item"><a class="nav-link" href="' . BASE_URL . '/change_credentials.php">Change Credentials</a></li>';
-            echo '<li class="nav-item"><a class="nav-link" href="' . BASE_URL . '/user/expenses.php">Expenses</a></li>';
-            echo '<li class="nav-item"><a class="nav-link" href="' . BASE_URL . '/user/budget.php">Budgets</a></li>';
+            echo '<li class="nav-item"><a class="nav-link" href="' . BASE_URL . '/admin/manage_categories.php">Categories</a></li>';
+            echo '<li class="nav-item"><a class="nav-link" href="' . BASE_URL . '/admin/manage_payment_methods.php">Payment Methods</a></li>';
           }
         ?>
         <?php
