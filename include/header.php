@@ -30,11 +30,35 @@ if (!isset($_SESSION)) {
         <?php
           /* User Information */
           if (isset($_SESSION['user_name']) && $_SESSION['user_role'] == 1) { // Only display when user is logged in
-            echo '<li class="nav-item"><a class="nav-link" href="' . BASE_URL . '/admin/">Admin Dashboard</a></li>';
-            echo '<li class="nav-item"><a class="nav-link" href="' . BASE_URL . '/admin/search_users.php">Search Users</a></li>';
-            echo '<li class="nav-item"><a class="nav-link" href="' . BASE_URL . '/change_credentials.php">Change Credentials</a></li>';
-            echo '<li class="nav-item"><a class="nav-link" href="' . BASE_URL . '/admin/manage_categories.php">Categories</a></li>';
-            echo '<li class="nav-item"><a class="nav-link" href="' . BASE_URL . '/admin/manage_payment_methods.php">Payment Methods</a></li>';
+            ?>
+            <li class="nav-item"><a class="nav-link" href="<?= BASE_URL ?>/admin/">Dashboard</a></li>
+            <?php
+            $adminMenus = [
+                'Users' => [
+                    'Search Users' => 'search_users.php',
+                    'User Roles' => 'manage_roles.php',
+                    'Transfer Records' => 'transfer_accounts.php',
+                ],
+                'Expense Settings' => [
+                    'Categories' => 'manage_categories.php',
+                    'Merchants' => 'manage_merchants.php',
+                    'Payment Methods' => 'manage_payment_methods.php',
+                    'Currencies' => 'manage_currencies.php',
+                ],
+            ];
+            foreach ($adminMenus as $label => $links): ?>
+                <li class="nav-item dropdown">
+                    <button class="nav-link dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false"><?= $label ?></button>
+                    <ul class="dropdown-menu">
+                        <?php foreach ($links as $title => $file): ?>
+                            <li><a class="dropdown-item" href="<?= BASE_URL ?>/admin/<?= $file ?>"><?= $title ?></a></li>
+                        <?php endforeach; ?>
+                    </ul>
+                </li>
+            <?php endforeach; ?>
+            <li class="nav-item"><a class="nav-link" href="<?= BASE_URL ?>/admin/manage_recommendations.php">Budget Recommendations</a></li>
+            <li class="nav-item"><a class="nav-link" href="<?= BASE_URL ?>/change_credentials.php">Account Settings</a></li>
+            <?php
           }
         ?>
         <?php
