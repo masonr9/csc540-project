@@ -74,7 +74,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["delete_budget"])) {
     }
 }
 
-<<<<<<< HEAD
 /* Edit Monthly Budget */
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["edit_budget"])) {
 
@@ -82,8 +81,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["edit_budget"])) {
     $new_amount = $_POST["new_amount"] ?? '';
 
     if (
-        $budget_id !== false &&
-        $budget_id !== null &&
         $budget_id > 0 &&
         is_numeric($new_amount) &&
         $new_amount > 0
@@ -111,16 +108,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["edit_budget"])) {
 }
 
 /* Add Monthly Budget */
+/* Add Monthly Budget */
 if (
     $_SERVER["REQUEST_METHOD"] == "POST" &&
     !isset($_POST["delete_budget"]) &&
     !isset($_POST["edit_budget"])
 ) {
-=======
-/* Add Monthly Budget */
-if ($_SERVER["REQUEST_METHOD"] == "POST" && !isset($_POST["delete_budget"])) {
->>>>>>> origin/main
-
     $category_id = filter_input(INPUT_POST, 'category_id', FILTER_VALIDATE_INT);
 
     /* Get selected month and year */
@@ -230,11 +223,7 @@ $stmt->close();
 
 <main role="main" class="container">
 
-<<<<<<< HEAD
-    <div class="container budget-page">
-=======
     <div class="container text-center">
->>>>>>> origin/main
 
         <h1>My Monthly Budgets</h1>
         <p class="lead">
@@ -329,12 +318,8 @@ $stmt->close();
                         <th scope="col">Month</th>
                         <th scope="col">Category</th>
                         <th scope="col">Budget Limit</th>
-<<<<<<< HEAD
                         <th scope="col">Edit</th>
                         <th scope="col">Delete</th>
-=======
->>>>>>> origin/main
-                        <th scope="col">Action</th>
                     </tr>
                 </thead>
 
@@ -347,10 +332,8 @@ $stmt->close();
                             echo "<td>" . htmlspecialchars($row["category_name"]) . "</td>";
                             echo "<td>$" . number_format($row["limit_amount"], 2) . "</td>";
 
-<<<<<<< HEAD
                             /* Edit button */
-                            echo 
-                            "<td>
+                            echo "<td>
                                 <form action='budget.php' method='post'>
 
                                     <input type='hidden'
@@ -366,15 +349,14 @@ $stmt->close();
                                         required>
 
                                     <button type='submit'
-                                            name='edit_budget'
-                                            value='1'                                                class='btn btn-outline-primary btn-sm'>
-                                            Save
+                                        name='edit_budget'
+                                        value='1'
+                                        class='btn btn-outline-primary btn-sm'>
+                                        Save
                                     </button>
+
                                 </form>
                             </td>";
-
-=======
->>>>>>> origin/main
                             /* Delete button */
                             echo "<td>
                                     <form action='budget.php' method='post'
@@ -396,11 +378,7 @@ $stmt->close();
                             echo "</tr>";
                         }
                     } else {
-<<<<<<< HEAD
                         echo "<tr><td colspan='5'>No budgets found</td></tr>";
-=======
-                        echo "<tr><td colspan='4'>No budgets found</td></tr>";
->>>>>>> origin/main
                     }?>
 
                 </tbody>
