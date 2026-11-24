@@ -50,8 +50,8 @@ if (!isset($_SESSION)) {
                 <li class="nav-item dropdown">
                     <button class="nav-link dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false"><?= $label ?></button>
                     <ul class="dropdown-menu">
-                        <?php foreach ($links as $title => $file): ?>
-                            <li><a class="dropdown-item" href="<?= BASE_URL ?>/admin/<?= $file ?>"><?= $title ?></a></li>
+                        <?php foreach ($links as $linkLabel => $file): ?>
+                            <li><a class="dropdown-item" href="<?= BASE_URL ?>/admin/<?= $file ?>"><?= $linkLabel ?></a></li>
                         <?php endforeach; ?>
                     </ul>
                 </li>

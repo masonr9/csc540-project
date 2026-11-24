@@ -94,7 +94,7 @@ CREATE TABLE recurring_expense (
 );
 CREATE TABLE budget_recommendations (
     recommendation_id int AUTO_INCREMENT PRIMARY KEY NOT NULL,
-    category_id INT NOT NULL,
+    category_id INT NOT NULL UNIQUE,
     amount decimal(10,2),
 
     FOREIGN KEY (category_id) REFERENCES categories(category_id)
