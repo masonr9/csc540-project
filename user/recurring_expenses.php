@@ -40,7 +40,7 @@ foreach ($lookups as $key => [$table, $label, $title]) {
     $choices[$key] = $db_connection->query("SELECT $key, $label FROM $table ORDER BY $label")->fetch_all(MYSQLI_ASSOC);
 }
 $error = '';
-$form = ['recurring_id'=>'', 'frequency' => '', 'amount'=>'', 'start_date'=>date('Y-m-d')];
+$form = ['merchant_name'=>'', 'recurring_id'=>'', 'frequency' => '', 'amount'=>'', 'start_date'=>date('Y-m-d')];
 foreach ($lookups as $key => $unused) { $form[$key] = ''; }
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     foreach ($form as $key => $value) { $form[$key] = is_string($_POST[$key] ?? null) ? trim($_POST[$key]) : ''; }
@@ -57,6 +57,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else {
         if ($action !== 'delete') {
             foreach ($lookups as $key => $unused) {
+                if ($key === 'merchant_id' && $form[$key] === 'other') {
+                    if (!preg_match('/^.{1,50}$/uD', $form['merchant_name'])) {
+                        $error = 'Enter a merchant name between 1 and 50 characters.';
+                    }
+                    continue;
+                }
                 if (!in_array($form[$key], array_map('strval', array_column($choices[$key], $key)), true)) { $error = 'Select a valid category, payment method, merchant and currency.'; }
             }
             if (!preg_match('/^\d{1,8}(\.\d{1,2})?$/D', $form['amount']) || (float)$form['amount'] <= 0) { $error = 'Enter a positive amount, at most 99,999,999.99, with up to two decimal places.'; }
@@ -67,18 +73,39 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if ($action === 'delete') {
                 query_expenses($db_connection, 'DELETE FROM recurring_expense WHERE recurring_id=? AND user_id=?', 'ii', [$id,$user_id]);
             } else {
-                $values = [$form['category_id'],$form['payment_id'],$form['merchant_id'],$form['currency_id'],$form['frequency'],$form['amount'],$form['start_date']];
-                if ($action === 'add') {
-                    $values[] = $user_id;
-                    query_expenses($db_connection, 'INSERT INTO recurring_expense (category_id,payment_id,merchant_id,currency_id,frequency,amount,start_date,user_id) VALUES (?,?,?,?,?,?,?,?)', 'iiiisssi', $values);
-                } else {
-                    $values[] = $id; $values[] = $user_id;
-                    query_expenses($db_connection, 'UPDATE recurring_expense SET category_id=?,payment_id=?,merchant_id=?,currency_id=?,frequency=?,amount=?,start_date=? WHERE recurring_id=? AND user_id=?', 'iiiisssii', $values);
+                $db_connection->begin_transaction();
+                try {
+                    $merchantId = $form['merchant_id'];
+                    if ($merchantId === 'other') {
+                        $match = query_expenses($db_connection, 'SELECT merchant_id FROM merchant WHERE merchant_name=? ORDER BY merchant_id LIMIT 1 FOR UPDATE', 's', [$form['merchant_name']])->get_result()->fetch_assoc();
+                        if ($match) {
+                            $merchantId = $match['merchant_id'];
+                        } else {
+                            $insert = query_expenses($db_connection, 'INSERT INTO merchant (merchant_name) VALUES (?)', 's', [$form['merchant_name']]);
+                            $merchantId = $insert->insert_id;
+                        }
+                    }
+                    $values = [$form['category_id'],$form['payment_id'],$merchantId,$form['currency_id'],$form['frequency'],$form['amount'],$form['start_date']];
+                    if ($action === 'add') {
+                        $values[] = $user_id;
+                        query_expenses($db_connection, 'INSERT INTO recurring_expense (category_id,payment_id,merchant_id,currency_id,frequency,amount,start_date,user_id) VALUES (?,?,?,?,?,?,?,?)', 'iiiisssi', $values);
+                    } else {
+                        $values[] = $id; $values[] = $user_id;
+                        query_expenses($db_connection, 'UPDATE recurring_expense SET category_id=?,payment_id=?,merchant_id=?,currency_id=?,frequency=?,amount=?,start_date=? WHERE recurring_id=? AND user_id=?', 'iiiisssii', $values);
+                    }
+                    $db_connection->commit();
+                } catch (mysqli_sql_exception $exception) {
+                    $db_connection->rollback();
+                    error_log($exception->getMessage());
+                    $error = 'Unable to save the expense. Please try again.';
                 }
+
             }
-            $_SESSION['expense_notice'] = 'Recurring Expense ' . ['add'=>'added','edit'=>'updated','delete'=>'deleted'][$action] . '.';
-            header('Location: ' . BASE_URL . '/user/recurring_expenses.php');
-            exit;
+            if ($error === '') {
+                $_SESSION['expense_notice'] = 'Recurring Expense ' . ['add'=>'added','edit'=>'updated','delete'=>'deleted'][$action] . '.';
+                header('Location: ' . BASE_URL . '/user/recurring_expenses.php');
+                exit;
+            }
         }
     }
 } elseif (isset($_GET['edit'])) {
@@ -171,7 +198,16 @@ $notice = $_SESSION['expense_notice'] ?? ''; unset($_SESSION['expense_notice']);
                             <?= esc($choice[$label]) ?>
                         </option>
                     <?php endforeach; ?>
+                    <?php if ($key === 'merchant_id'): ?>
+                        <option value="other" <?= $form[$key] === 'other' ? 'selected' : '' ?>>Other</option>
+                    <?php endif; ?>
                 </select>
+                <?php if ($key === 'merchant_id'): ?>
+                    <div id="custom-merchant" class="mt-2" <?= $form[$key] === 'other' ? '' : 'hidden' ?>>
+                        <label class="form-label" for="merchant_name">Merchant name</label>
+                        <input class="form-control" id="merchant_name" name="merchant_name" maxlength="50" value="<?= esc($form['merchant_name'] ?? '') ?>">
+                    </div>
+                <?php endif; ?>
             </div>
         <?php endforeach; ?>
         <div class="col-md-6">
@@ -282,6 +318,19 @@ $notice = $_SESSION['expense_notice'] ?? ''; unset($_SESSION['expense_notice']);
         <a href="<?= esc(BASE_URL) ?>/user/budget.php">Manage monthly budgets</a>
     </section>
 </main>
+        <script>
+            const merchantSelect = document.getElementById('merchant_id');
+            const merchantName = document.getElementById('merchant_name');
+            function updateMerchantField() {
+                const custom = merchantSelect.value === 'other';
+                document.getElementById('custom-merchant').hidden = !custom;
+                merchantName.disabled = !custom;
+                merchantName.required = custom;
+            }
+            merchantSelect.addEventListener('change', updateMerchantField);
+            updateMerchantField();
+        </script>
+
 <?php include ROOT_PATH . '/include/footer.php'; ?>
 </body>
 </html>

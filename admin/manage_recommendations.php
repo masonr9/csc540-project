@@ -11,8 +11,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (!adminQuery('SELECT category_id FROM categories WHERE category_id = ? FOR UPDATE', 'i', [$category])->get_result()->fetch_assoc()) {
             throw new InvalidArgumentException('Choose an existing category.');
         }
-        adminQuery('INSERT INTO budget_recommendations (category_id, amount) VALUES (?, ?)', 'is', [$category, $amount]);
-        return 'Budget recommendation added.';
+        adminQuery('INSERT INTO budget_recommendations (category_id, amount) VALUES (?, ?) ON DUPLICATE KEY UPDATE amount = VALUES(amount)', 'is', [$category, $amount]);
+        return 'Budget recommendation saved.';
     });
 }
 $categories = adminQuery('SELECT category_id, category_name FROM categories ORDER BY category_name')->get_result()->fetch_all(MYSQLI_ASSOC);
@@ -30,7 +30,7 @@ adminStart('Budget Recommendations');
     </select>
     <label for="amount" class="form-label">Recommended monthly budget</label>
     <input id="amount" name="amount" type="number" min="0.01" max="99999999.99" step="0.01" class="form-control mb-3" required>
-    <button class="btn btn-primary">Add Recommendation</button>
+    <button class="btn btn-primary">Save Recommendation</button>
 </form>
 <table class="table table-striped">
     <thead><tr><th>Category</th><th>Recommended amount</th></tr></thead>

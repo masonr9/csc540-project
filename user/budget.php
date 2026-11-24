@@ -170,6 +170,10 @@ while ($stmt->fetch()) {
 }
 
 $stmt->close();
+$recommendations = $db_connection->query(
+    "SELECT c.category_name, r.amount FROM budget_recommendations r
+     JOIN categories c ON c.category_id = r.category_id ORDER BY c.category_name"
+);
 ?>
 
 <!DOCTYPE html>
@@ -194,6 +198,25 @@ $stmt->close();
         </p>
 
         <hr class="mb-4">
+
+        <section class="mb-4">
+            <h2>Budget Recommendations</h2>
+            <?php if ($recommendations->num_rows): ?>
+                <table class="table">
+                    <thead><tr><th>Category</th><th>Recommended monthly budget</th></tr></thead>
+                    <tbody>
+                        <?php foreach ($recommendations as $row): ?>
+                            <tr>
+                                <td><?= htmlspecialchars($row['category_name'], ENT_QUOTES, 'UTF-8') ?></td>
+                                <td><?= number_format((float)$row['amount'], 2) ?></td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            <?php else: ?>
+                <p>No recommendations yet.</p>
+            <?php endif; ?>
+        </section>
 
         <!-- Add Monthly Budget Form -->
         <section class="mb-4">
