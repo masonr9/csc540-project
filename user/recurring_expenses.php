@@ -160,8 +160,12 @@ $notice = $_SESSION['expense_notice'] ?? ''; unset($_SESSION['expense_notice']);
         <style>main.expenses{padding-bottom:100px}.expense-form{max-width:900px}td,th{vertical-align:middle}</style>
         <?php include ROOT_PATH . '/include/header.php'; ?>
     <main class="container expenses">
-        <h1>My Recurring Expenses</h1>
-        <p>Record spending and review your monthly category totals.</p>
+        <div class="page-heading">
+            <h1>My Recurring Expenses</h1>
+            <p class="lead text-center">
+                Record spending and review your monthly category totals.
+            </p>
+        </div>
         <?php if ($error): ?>
             <div class="alert alert-danger" role="alert">
                 <?= esc($error) ?>
@@ -172,7 +176,7 @@ $notice = $_SESSION['expense_notice'] ?? ''; unset($_SESSION['expense_notice']);
                 <?= esc($notice) ?>
             </div>
         <?php endif; ?>
-            <section class="card card-body mb-4 expense-form">
+            <section class="card card-body mb-4 expense-form mx-auto">
                 <h2><?= $form['recurring_id'] ? 'Edit recurring expense' : 'Add recurring expense' ?></h2>
             <form method="post" action="<?= esc(BASE_URL) ?>/user/recurring_expenses.php">
             <input type="hidden" name="token" value="<?= esc($_SESSION['expense_token']) ?>">

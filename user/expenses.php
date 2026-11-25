@@ -206,13 +206,11 @@ unset($_SESSION['expense_notice']);
             }
         </style>
         <?php include ROOT_PATH . '/include/header.php'; ?>
-        <main class="container expenses">
-            <h1>
-                My Expenses
-            </h1>
-            <p>
-                Record spending and review your monthly category totals.
-            </p>
+        <main class="container expenses management-page">
+            <div class="page-heading">
+                <h1>My Expenses</h1>
+                <p>Record spending and review your monthly category totals.</p>
+            </div>
             <?php if ($error): ?>
                 <div class="alert alert-danger" role="alert">
                     <?= esc($error) ?>
@@ -223,7 +221,7 @@ unset($_SESSION['expense_notice']);
                     <?= esc($notice) ?>
                 </div>
             <?php endif; ?>
-            <section class="card card-body mb-4 expense-form">
+            <section class="management-form">
                 <h2>
                     <?= $form['expense_id'] ? 'Edit expense' : 'Add expense' ?>
                 </h2>
@@ -279,7 +277,7 @@ unset($_SESSION['expense_notice']);
                     </a>
                 </form>
             </section>
-            <section class="mb-4">
+            <section class="management-section">
                 <h2>
                     Expense history
                 </h2>
@@ -385,7 +383,7 @@ unset($_SESSION['expense_notice']);
                     </table>
                 </div>
             </section>
-            <section>
+            <section class="management-section">
                 <h2>
                     Category totals for <?= esc($month) ?>
                 </h2>

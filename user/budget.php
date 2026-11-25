@@ -225,18 +225,18 @@ $recommendations = $db_connection->query(
 
 <?php include_once (ROOT_PATH . '/include/header.php'); ?>
 
-<main role="main" class="container">
+<main role="main" class="container management-page">
 
-    <div class="container text-center">
+    <div class="container">
 
-        <h1>My Monthly Budgets</h1>
-        <p class="lead">
-            View and manage your monthly spending limits.
-        </p>
+        <div class="page-heading">
+            <h1>My Monthly Budgets</h1>
+            <p class="lead">
+                View and manage your monthly spending limits.
+            </p>
+        </div>
 
-        <hr class="mb-4">
-
-        <section class="mb-4">
+        <section class="management-section">
             <h2>Budget Recommendations</h2>
             <?php if ($recommendations->num_rows): ?>
                 <table class="table">
@@ -256,7 +256,7 @@ $recommendations = $db_connection->query(
         </section>
 
         <!-- Add Monthly Budget Form -->
-        <section class="mb-4">
+        <section class="management-form">
 
             <h2>Add Monthly Budget</h2>
             <?php
@@ -331,7 +331,7 @@ $recommendations = $db_connection->query(
 
         <hr class="mb-4">
 
-        <section class="mb-4">
+        <section class="management-section">
 
             <h2>Budget Information</h2>
 
