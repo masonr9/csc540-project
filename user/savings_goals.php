@@ -170,6 +170,117 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" &&
     }
 }
 
+/* Edit Savings Goal */
+if ($_SERVER["REQUEST_METHOD"] == "POST" &&
+    isset($_POST["edit_goal"])) {
+
+    /* Verify CSRF token */
+    if (!hash_equals($_SESSION['savings_csrf'],
+        $_POST['csrf_token'] ?? '')) {
+        exit("Invalid request.");
+    }
+
+    $savings_id = filter_input(
+        INPUT_POST, "savings_id", FILTER_VALIDATE_INT
+    );
+
+    $goal_name = trim($_POST["goal_name"] ?? '');
+    $amount = $_POST["amount"] ?? '';
+    $due_date = $_POST["due_date"] ?? '';
+
+    $valid_date = DateTime::createFromFormat("!Y-m-d", $due_date);
+
+    /* Validate information */
+    if (
+        $savings_id > 0 &&
+        !empty($goal_name) &&
+        strlen($goal_name) <= 100 &&
+        is_numeric($amount) &&
+        $amount >= 0.01 &&
+        $amount <= 99999999.99 &&
+        $valid_date &&
+        $valid_date->format("Y-m-d") === $due_date &&
+        $due_date >= date("Y-m-d")
+    ) {
+
+        $edit_goal = $db_connection->prepare(
+            "UPDATE savings_goals
+             SET goal_name = ?, amount = ?, due_date = ?
+             WHERE savings_id = ? AND user_id = ?
+             AND saved_amount <= ?"
+        );
+
+        $edit_goal->bind_param(
+            "sdsiid",
+            $goal_name,
+            $amount,
+            $due_date,
+            $savings_id,
+            $user_id,
+            $amount
+        );
+
+        if ($edit_goal->execute() &&
+            $edit_goal->affected_rows > 0) {
+
+            $edit_goal->close();
+            header("location: savings_goals.php");
+            exit();
+
+        } else {
+            $message = "Unable to update goal. No changes were made or the target is below your saved amount.";
+        }
+
+        $edit_goal->close();
+
+    } else {
+        $message = "Please enter valid savings goal information.";
+    }
+}
+
+/* Delete Savings Goal */
+if ($_SERVER["REQUEST_METHOD"] == "POST" &&
+    isset($_POST["delete_goal"])) {
+
+    /* Verify CSRF token */
+    if (!hash_equals($_SESSION['savings_csrf'],
+        $_POST['csrf_token'] ?? '')) {
+        exit("Invalid request.");
+    }
+
+    $savings_id = filter_input(
+        INPUT_POST, "savings_id", FILTER_VALIDATE_INT
+    );
+
+    if ($savings_id > 0) {
+
+        $delete_goal = $db_connection->prepare(
+            "DELETE FROM savings_goals
+             WHERE savings_id = ? AND user_id = ?"
+        );
+
+        $delete_goal->bind_param(
+            "ii", $savings_id, $user_id
+        );
+
+        if ($delete_goal->execute() &&
+            $delete_goal->affected_rows > 0) {
+
+            $delete_goal->close();
+            header("location: savings_goals.php");
+            exit();
+
+        } else {
+            $message = "Unable to delete savings goal.";
+        }
+
+        $delete_goal->close();
+
+    } else {
+        $message = "Invalid savings goal selected.";
+    }
+}
+
 /* Get user savings goals */
 $stmt = $db_connection->prepare(
     "SELECT savings_id, goal_name, amount, saved_amount, due_date
@@ -409,6 +520,93 @@ $stmt->close();
 
                                         </form>
 
+                                        <hr>
+
+                                        <!-- Edit Savings Goal -->
+                                        <details class="mb-3">
+
+                                            <summary class="btn btn-outline-primary btn-sm">
+                                                Edit Goal
+                                            </summary>
+
+                                            <form action="savings_goals.php"
+                                                method="post" class="mt-3">
+
+                                                <input type="hidden" name="csrf_token"
+                                                    value="<?php echo htmlspecialchars($_SESSION['savings_csrf']); ?>">
+
+                                                <input type="hidden" name="savings_id"
+                                                    value="<?php echo (int)$goal['savings_id']; ?>">
+
+                                                <div class="mb-3">
+
+                                                    <label class="form-label">Goal Name</label>
+
+                                                    <input type="text"
+                                                        class="form-control"
+                                                        name="goal_name"
+                                                        value="<?php echo htmlspecialchars($goal['goal_name'] ?? ''); ?>"
+                                                        maxlength="100"
+                                                        required>
+
+                                                </div>
+
+                                                <div class="mb-3">
+
+                                                    <label class="form-label">Target Amount</label>
+
+                                                    <input type="number"
+                                                        class="form-control"
+                                                        name="amount"
+                                                        value="<?php echo htmlspecialchars($goal['amount']); ?>"
+                                                        min="<?php echo max(0.01, $goal['saved_amount']); ?>"
+                                                        max="99999999.99"
+                                                        step="0.01"
+                                                        required>
+
+                                                </div>
+
+                                                <div class="mb-3">
+
+                                                    <label class="form-label">Due Date</label>
+
+                                                    <input type="date"
+                                                        class="form-control"
+                                                        name="due_date"
+                                                        value="<?php echo htmlspecialchars($goal['due_date'] ?? ''); ?>"
+                                                        min="<?php echo date('Y-m-d'); ?>"
+                                                        required>
+
+                                                </div>
+
+                                                <button type="submit"
+                                                    name="edit_goal"
+                                                    class="btn btn-primary btn-sm">
+                                                    Save Changes
+                                                </button>
+
+                                            </form>
+
+                                        </details>
+
+                                        <!-- Delete Savings Goal -->
+                                        <form action="savings_goals.php" method="post"
+                                            onsubmit="return confirm('Are you sure you want to delete this savings goal? All recorded savings for this goal will be lost.');">
+
+                                            <input type="hidden" name="csrf_token"
+                                                value="<?php echo htmlspecialchars($_SESSION['savings_csrf']); ?>">
+
+                                            <input type="hidden" name="savings_id"
+                                                value="<?php echo (int)$goal['savings_id']; ?>">
+
+                                            <button type="submit"
+                                                name="delete_goal"
+                                                value="1"
+                                                class="btn btn-outline-danger btn-sm">
+                                                Delete Goal
+                                            </button>
+
+                                        </form>
                                 </div>
 
                             </div>
