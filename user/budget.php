@@ -74,9 +74,46 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["delete_budget"])) {
     }
 }
 
-/* Add Monthly Budget */
-if ($_SERVER["REQUEST_METHOD"] == "POST" && !isset($_POST["delete_budget"])) {
+/* Edit Monthly Budget */
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["edit_budget"])) {
 
+    $budget_id = filter_input(INPUT_POST, "budget_id", FILTER_VALIDATE_INT);
+    $new_amount = $_POST["new_amount"] ?? '';
+
+    if (
+        $budget_id > 0 &&
+        is_numeric($new_amount) &&
+        $new_amount > 0
+    ) {
+        $edit_budget = $db_connection->prepare(
+            "UPDATE budget
+             SET limit_amount = ?
+             WHERE budget_id = ? AND user_id = ?"
+        );
+
+        $edit_budget->bind_param("dii", $new_amount, $budget_id, $user_id);
+
+        if ($edit_budget->execute()) {
+            header("location: budget.php");
+            exit();
+        } else {
+            $message = "Unable to update budget.";
+        }
+
+        $edit_budget->close();
+
+    } else {
+        $message = "Please enter a valid budget amount.";
+    }
+}
+
+/* Add Monthly Budget */
+/* Add Monthly Budget */
+if (
+    $_SERVER["REQUEST_METHOD"] == "POST" &&
+    !isset($_POST["delete_budget"]) &&
+    !isset($_POST["edit_budget"])
+) {
     $category_id = filter_input(INPUT_POST, 'category_id', FILTER_VALIDATE_INT);
 
     /* Get selected month and year */
@@ -304,7 +341,8 @@ $recommendations = $db_connection->query(
                         <th scope="col">Month</th>
                         <th scope="col">Category</th>
                         <th scope="col">Budget Limit</th>
-                        <th scope="col">Action</th>
+                        <th scope="col">Edit</th>
+                        <th scope="col">Delete</th>
                     </tr>
                 </thead>
 
@@ -317,6 +355,31 @@ $recommendations = $db_connection->query(
                             echo "<td>" . htmlspecialchars($row["category_name"]) . "</td>";
                             echo "<td>$" . number_format($row["limit_amount"], 2) . "</td>";
 
+                            /* Edit button */
+                            echo "<td>
+                                <form action='budget.php' method='post'>
+
+                                    <input type='hidden'
+                                        name='budget_id'
+                                        value='" . (int)$row["budget_id"] . "'>
+
+                                    <input type='number'
+                                        name='new_amount'
+                                        value='" . htmlspecialchars($row["limit_amount"]) . "'
+                                        min='0.01'
+                                        step='0.01'
+                                        class='form-control mb-2'
+                                        required>
+
+                                    <button type='submit'
+                                        name='edit_budget'
+                                        value='1'
+                                        class='btn btn-outline-primary btn-sm'>
+                                        Save
+                                    </button>
+
+                                </form>
+                            </td>";
                             /* Delete button */
                             echo "<td>
                                     <form action='budget.php' method='post'
@@ -338,7 +401,7 @@ $recommendations = $db_connection->query(
                             echo "</tr>";
                         }
                     } else {
-                        echo "<tr><td colspan='4'>No budgets found</td></tr>";
+                        echo "<tr><td colspan='5'>No budgets found</td></tr>";
                     }?>
 
                 </tbody>

@@ -68,6 +68,7 @@ if (!isset($_SESSION)) {
             echo '<li class="nav-item"><a class="nav-link" href="' . BASE_URL . '/user/expenses.php">Expenses</a></li>';
             echo '<li class="nav-item"><a class="nav-link" href="' . BASE_URL . '/user/recurring_expenses.php">Recurring Expenses</a></li>';
             echo '<li class="nav-item"><a class="nav-link" href="' . BASE_URL . '/user/budget.php">Budgets</a></li>';
+            echo '<li class="nav-item"><a class="nav-link" href="' . BASE_URL . '/user/savings_goals.php">Savings Goals</a></li>';
             echo '<li class="nav-item"><a class="nav-link" href="' . BASE_URL . '/change_credentials.php">Change Credentials</a></li>';
           }
         ?>
